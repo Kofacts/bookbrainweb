@@ -202,13 +202,13 @@ const BookBrainAwwwards = () => {
           {/* App Showcase - 2 columns */}
           <div className={`lg:col-span-2 transition-all duration-1000 delay-500 ${isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
             <div className="relative">
-              
+
               {/* Phone mockup with real app image */}
               <div className="relative w-full max-w-xs mx-auto">
                 <div className="rounded-[36px] overflow-hidden shadow-2xl border-8 border-slate-800">
                   {/* App screenshot image */}
                   <img 
-                    src="/src/assets/landing.png" 
+                    src="/landing.png" 
                     alt="BookBrain App Screenshot" 
                     className="w-full aspect-[9/19.5] object-cover object-top" 
                   />
