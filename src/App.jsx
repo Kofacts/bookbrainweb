@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BookOpen, ArrowRight, CheckCircle } from 'lucide-react';
-import logoImage from '/src/assets/colour.png'; // Path to your image
+import logoImage from '/colour.png'; // Path to your image
 
 
 const BookBrainAwwwards = () => {
