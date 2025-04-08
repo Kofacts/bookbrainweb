@@ -8,6 +8,8 @@ const BookBrainAwwwards = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isIntersecting, setIsIntersecting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const heroRef = useRef(null);
   
   // Intersection observer for animation triggers
@@ -38,12 +40,39 @@ const BookBrainAwwwards = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    setTimeout(() => {
-      setIsSubmitted(false);
-    }, 3000);
+    setError('');
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong');
+      }
+      
+      // Success
+      setIsSubmitted(true);
+      setEmail('');
+      
+      // Reset success message after 3 seconds
+      setTimeout(() => {
+        setIsSubmitted(false);
+      }, 3000);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const features = [
@@ -139,25 +168,33 @@ const BookBrainAwwwards = () => {
                 />
                 
                 <button 
-                  type="submit" 
-                  className={`group px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                    isSubmitted 
-                      ? 'bg-green-500 text-white'
+                type="submit" 
+                disabled={isLoading}
+                className={`px-6 py-3.5 rounded-xl font-medium transition-all duration-300 shadow-lg ${
+                  isSubmitted 
+                    ? 'bg-emerald-500 text-white' 
+                    : isLoading
+                      ? 'bg-slate-400 text-white cursor-not-allowed'
                       : 'bg-teal-600 text-white hover:bg-teal-700'
-                  }`}
-                >
-                  {isSubmitted ? (
-                    <span className="flex items-center justify-center">
-                      <CheckCircle size={18} className="mr-2" />
-                      Added!
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center">
-                      Join Waitlist
-                      <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                    </span>
-                  )}
-                </button>
+                }`}
+              >
+                {isLoading ? (
+                  <span className="flex items-center">
+                    Loading...
+                  </span>
+                ) : isSubmitted ? (
+                  <span className="flex items-center">
+                    <CheckCircle size={18} className="mr-2" />
+                    Added!
+                  </span>
+                ) : (
+                  <span className="flex items-center">
+                    Join Waitlist
+                    <ArrowRight size={16} className="ml-2" />
+                  </span>
+                )}
+              </button>
+
               </div>
               
               <p className="text-slate-500 text-sm mt-2 ml-1">No spam. Just the launch announcement.</p>
