@@ -1,117 +1,190 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BookOpen, ArrowRight, CheckCircle } from 'lucide-react';
-import logoImage from '/colour.png'; // Path to your image
+import { BookOpen, ArrowRight, CheckCircle, Download, Star, Calendar, Search, BookMarked, Moon, Diamond } from 'lucide-react';
+import logoImage from '/inv.png'; // Path to your image
 
-// Remove the navigation from this component as it's now in App.tsx
-const BookBrainAwwwards = () => {
-  const [email, setEmail] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
+const BookBrainLaunch = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isIntersecting, setIsIntersecting] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const heroRef = useRef(null);
+  const [isIntersecting, setIsIntersecting] = useState({
+    hero: false,
+    features: false,
+    personas: false,
+    testimonials: false,
+    pricing: false,
+    faq: false
+  });
+  const [activeFaq, setActiveFaq] = useState(null);
+  const [yearlyBilling, setYearlyBilling] = useState(true);
+  
+  const sectionRefs = {
+    hero: useRef(null),
+    features: useRef(null),
+    personas: useRef(null),
+    testimonials: useRef(null),
+    pricing: useRef(null),
+    faq: useRef(null)
+  };
   
   // Intersection observer for animation triggers
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsIntersecting(entry.isIntersecting);
-      },
-      { threshold: 0.1 }
-    );
+    const observers = {};
     
-    if (heroRef.current) {
-      observer.observe(heroRef.current);
-    }
+    Object.entries(sectionRefs).forEach(([key, ref]) => {
+      observers[key] = new IntersectionObserver(
+        ([entry]) => {
+          setIsIntersecting(prev => ({
+            ...prev,
+            [key]: entry.isIntersecting
+          }));
+        },
+        { threshold: 0.1 }
+      );
+      
+      if (ref.current) {
+        observers[key].observe(ref.current);
+      }
+    });
     
     return () => {
-      if (heroRef.current) {
-        observer.unobserve(heroRef.current);
-      }
+      Object.entries(observers).forEach(([key, observer]) => {
+        if (sectionRefs[key].current) {
+          observer.unobserve(sectionRefs[key].current);
+        }
+      });
     };
   }, []);
   
   // Auto-rotate feature highlights
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % 3);
+      setCurrentIndex((prev) => (prev + 1) % 8);
     }, 3000);
     return () => clearInterval(interval);
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-    
-    try {
-      const response = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
-      }
-      
-      // Success
-      setIsSubmitted(true);
-      setEmail('');
-      
-      // Reset success message after 3 seconds
-      setTimeout(() => {
-        setIsSubmitted(false);
-      }, 3000);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
   
   const features = [
-    { id: 0, title: "Track reading streaks", description: "Build consistency with daily tracking" },
-    { id: 1, title: "AI-powered notes", description: "Capture and organize your insights" },
-    { id: 2, title: "Earn achievements", description: "Stay motivated with gamified reading" }
+    { 
+      id: 0, 
+      icon: <BookOpen size={24} />, 
+      title: "Timed Sessions", 
+      description: "Timed reading with automatic progress tracking." 
+    },
+    { 
+      id: 1, 
+      icon: <BookMarked size={24} />, 
+      title: "AI Note Assistant", 
+      description: "Scan and organize quotes with AI assistance." 
+    },
+    { 
+      id: 2, 
+      icon: <Star size={24} />, 
+      title: "Streaks & Rewards", 
+      description: "Daily streaks, stats, and unlockable milestones." 
+    },
+    { 
+      id: 3, 
+      icon: <Calendar size={24} />, 
+      title: "Streak Calendar", 
+      description: "Heatmap view of your reading consistency." 
+    },
+    { 
+      id: 4, 
+      icon: <Search size={24} />, 
+      title: "Notes Vault", 
+      description: "Tag, search, and revisit all your book notes." 
+    },
+    { 
+      id: 5, 
+      icon: <BookMarked size={24} />, 
+      title: "TBR Stack", 
+      description: "Track your reads and plan what’s next." 
+    },
+    { 
+      id: 6, 
+      icon: <Moon size={24} />, 
+      title: "Custom Reminders", 
+      description: "Set goals, timers, and nudges that work for you." 
+    },
+    { 
+      id: 7, 
+      icon: <Diamond size={24} />, 
+      title: "BookBrain Pro", 
+      description: "Unlock AI insights, Pro rewards, and more." 
+    }
+  ];
+  
+  const personas = [
+    { title: "The Habit Seeker", description: "Building a consistent reading habit" },
+    { title: "The Thought Collector", description: "Capturing and organizing ideas" },
+    { title: "The Deep Thinker", description: "Reflecting on what you read" },
+    { title: "The Achiever", description: "Tracking progress and setting goals" }
+  ];
+
+  const testimonials = [
+    { 
+      quote: "I never thought a reading app would make me feel like a better thinker.", 
+      author: "Sarah L., Philosophy Student" 
+    },
+    { 
+      quote: "This replaced Notion for my book notes. Everything is so much more organized now.", 
+      author: "Mark T., Software Developer" 
+    },
+    { 
+      quote: "I finally finished 5 books in a month. The streaks actually work!", 
+      author: "Jamie K., Entrepreneur" 
+    }
+  ];
+
+  const faqs = [
+    { 
+      question: "Do I have to read in the app?", 
+      answer: "No, BookBrain works with any book format—physical, e-books, or audiobooks. You can track your reading sessions and capture notes for any book you're reading." 
+    },
+    { 
+      question: "Does BookBrain work for physical books?", 
+      answer: "Absolutely! BookBrain is designed to work with physical books. You can scan quotes with your camera, track reading time, and organize notes from your physical library."
+    },
+    { 
+      question: "What does the AI do with my notes?", 
+      answer: "BookBrain's AI helps organize, summarize, and connect your notes. Your data remains private and is only used to provide you with personalized insights. We never share your reading data or notes with third parties."
+    },
+    { 
+      question: "Is BookBrain available on Android?", 
+      answer: "Currently, BookBrain is only available on iOS. We're working on an Android version that will be released in the future."
+    }
   ];
 
   return (
-    <div className="w-full min-h-screen bg-white text-slate-900 font-sans overflow-hidden">
+    <div className="w-full min-h-screen bg-white font-sans overflow-hidden">
       {/* Absolute positioned design elements */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-screen bg-gradient-to-b from-slate-50 to-white opacity-80"></div>
-        <div className="absolute top-1/4 -right-32 w-64 h-64 rounded-full bg-teal-50 blur-3xl"></div>
+        <div className="absolute top-1/4 -right-32 w-64 h-64 rounded-full bg-blue-50 blur-3xl"></div>
         <div className="absolute bottom-0 -left-32 w-64 h-64 rounded-full bg-slate-50 blur-3xl"></div>
       </div>
       
       {/* Hero Section */}
       <section 
-        ref={heroRef}
+        ref={sectionRefs.hero}
         className="pt-32 md:pt-40 pb-24 md:pb-32 px-6 md:px-16 max-w-6xl mx-auto"
       >
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-16 md:gap-8 items-center">
           {/* Text Content - 3 columns */}
           <div className="lg:col-span-3 flex flex-col">
-            <div className="mb-6 inline-flex items-center px-3 py-1 rounded-full bg-slate-100 text-slate-700 max-w-max">
-              <span className="text-xs font-medium tracking-wide">COMING SOON</span>
+            <div className="mb-6 inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-900 max-w-max">
+              <span className="text-xs font-medium tracking-wide">JUST LAUNCHED</span>
             </div>
             
-            <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6 md:mb-8 transition-all duration-1000 ${isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-              Build a reading habit that <span className="text-teal-600">sticks.</span>
+            <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6 md:mb-8 transition-all duration-1000 ${isIntersecting.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+              read smarter. reflect deeper. <span className="text-teal-600">every page counts.</span>
             </h1>
             
-            <p className={`text-lg md:text-xl text-slate-600 mb-8 max-w-xl transition-all duration-1000 delay-300 ${isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-              Track your daily reading streaks, capture notes with AI, and consistently finish more books with your personal reading companion.
+            <p className={`text-lg md:text-xl text-slate-600 mb-8 max-w-xl transition-all duration-1000 delay-300 ${isIntersecting.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+              Build your reading streak, capture notes effortlessly, and unlock insights from the books you love.
             </p>
             
             {/* Feature highlights animated */}
-            <div className={`mb-10 h-24 transition-all duration-1000 delay-500 ${isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+            <div className={`mb-10 h-24 transition-all duration-1000 delay-500 ${isIntersecting.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
               {features.map((feature, index) => (
                 <div
                   key={feature.id}
@@ -121,18 +194,21 @@ const BookBrainAwwwards = () => {
                       : 'opacity-0 translate-y-4 pointer-events-none'
                   }`}
                 >
-                  <h3 className="text-xl font-semibold text-slate-900 mb-1">{feature.title}</h3>
+                  <div className="flex items-center gap-2 mb-1 text-teal-600">
+                    {feature.icon}
+                    <h3 className="text-xl font-semibold">{feature.title}</h3>
+                  </div>
                   <p className="text-slate-600">{feature.description}</p>
                 </div>
               ))}
               
-              <div className="flex gap-2 mt-16">
+              <div className="flex gap-2 mt-20">
                 {features.map((feature, index) => (
                   <button
                     key={feature.id}
                     onClick={() => setCurrentIndex(index)}
-                    className={`w-12 h-[10px] rounded-full transition-all ${
-                      currentIndex === index ? 'bg-teal-500' : 'bg-slate-200'
+                    className={`w-8 h-[6px] rounded-full transition-all ${
+                      currentIndex === index ? 'bg-teal-600' : 'bg-slate-200'
                     }`}
                     aria-label={`Show feature: ${feature.title}`}
                   />
@@ -140,84 +216,49 @@ const BookBrainAwwwards = () => {
               </div>
             </div>
             
-            {/* Waitlist Form */}
-            <form 
-              onSubmit={handleSubmit} 
-              className={`max-w-md transition-all duration-1000 delay-700 ${isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
-            >
-              <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="email"
-                  placeholder="Your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm"
-                />
-                
-                <button 
-                type="submit" 
-                disabled={isLoading}
-                className={`px-6 py-3.5 rounded-xl font-medium transition-all duration-300 shadow-lg ${
-                  isSubmitted 
-                    ? 'bg-emerald-500 text-white' 
-                    : isLoading
-                      ? 'bg-slate-400 text-white cursor-not-allowed'
-                      : 'bg-teal-600 text-white hover:bg-teal-700'
-                }`}
+            {/* Download Buttons */}
+            <div className={`flex flex-col sm:flex-row gap-4 transition-all duration-1000 delay-700 ${isIntersecting.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+              <a 
+                href="https://apps.apple.com/us/app/bookbrain/id6744559314" 
+                className="px-6 py-3.5 rounded-xl font-medium transition-all duration-300 shadow-lg bg-teal-600 text-white hover:bg-blue-900 flex items-center justify-center"
               >
-                {isLoading ? (
-                  <span className="flex items-center">
-                    Loading...
-                  </span>
-                ) : isSubmitted ? (
-                  <span className="flex items-center">
-                    <CheckCircle size={18} className="mr-2" />
-                    Added!
-                  </span>
-                ) : (
-                  <span className="flex items-center">
-                    Join Waitlist
-                    <ArrowRight size={16} className="ml-2" />
-                  </span>
-                )}
-              </button>
-
-              </div>
+                <Download size={18} className="mr-2" />
+                Download on iOS
+              </a>
               
-              <p className="text-slate-500 text-sm mt-2 ml-1">No spam. Just the launch announcement.</p>
-            </form>
+              <a 
+                href="#features" 
+                className="px-6 py-3.5 rounded-xl font-medium transition-all duration-300 border border-slate-200 text-slate-800 hover:bg-slate-50 flex items-center justify-center"
+              >
+                Explore the App
+                <ArrowRight size={16} className="ml-2" />
+              </a>
+            </div>
             
             {/* Social proof */}
-            <div className={`mt-16 transition-all duration-1000 delay-1000 ${isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+            <div className={`mt-10 transition-all duration-1000 delay-1000 ${isIntersecting.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
               <div className="flex flex-wrap gap-4 items-center">
-                <p className="text-sm font-medium text-slate-500">As seen on:</p>
-                <div className="flex items-center gap-6">
+                <p className="text-sm font-medium text-slate-500">Featured in:</p>
+                <div className="flex items-center gap-4">
                   <div className="text-slate-400">
-                    <svg width="120" height="24" viewBox="0 0 120 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12Z" fill="currentColor" />
-                      <path d="M58 8H54V16H56V13H58C60.2091 13 62 11.2091 62 9C62 6.79086 60.2091 5 58 5H54V8H58Z" fill="currentColor" />
-                      <path d="M68 5H64V16H68C72.4183 16 76 12.4183 76 8.5C76 4.58172 72.4183 1 68 1V5ZM68 5V13H66V5H68Z" fill="currentColor" />
-                      <path d="M36 16V5H32V16H36Z" fill="currentColor" />
-                      <path d="M48 16V5H44V16H48Z" fill="currentColor" />
-                      <path d="M104 5H100V16H102V11H104C106.2091 11 108 9.20914 108 7C108 4.79086 106.2091 3 104 3V5ZM104 5V8H102V5H104Z" fill="currentColor" />
-                      <path d="M116 16H112V5H116V16Z" fill="currentColor" />
-                      <path d="M84 16V5H80V16H84Z" fill="currentColor" />
-                      <path d="M96 5H92V16H96V5Z" fill="currentColor" />
+                    <div className="w-20 h-auto grayscale hover:grayscale-0 transition-all duration-300">
+                    <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                        viewBox="0 0 180 90" width="40" height="30"  xml:space="preserve">
+                        <polygon fill="#0A9E01" points="90,0 90,30 60,30 60,90 30,90 30,30 0,30 0,0 "/>
+                        <rect x="120" fill="#0A9E01" width="60" height="30"/>
+                        <polygon fill="#0A9E01" points="180,60 180,90 90,90 90,30 120,30 120,60 "/>
                     </svg>
+                    </div>
+                  </div>
+                  <div className="text-slate-400 -ml-8">
+                    <div className="w-32 h-auto grayscale hover:grayscale-0 transition-all duration-300">
+                        <img src='/Morning_Brew.webp' />
+                    </div>
                   </div>
                   <div className="text-slate-400">
-                    <svg width="120" height="24" viewBox="0 0 120 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M14 12L8 8V16L14 12Z" fill="currentColor" />
-                      <path d="M20 12L14 8V16L20 12Z" fill="currentColor" />
-                      <path d="M32 12C32 14.2091 30.2091 16 28 16H24V8H28C30.2091 8 32 9.79086 32 12Z" fill="currentColor" />
-                      <path d="M48 16H42C39.7909 16 38 14.2091 38 12C38 9.79086 39.7909 8 42 8H48V16Z" fill="currentColor" />
-                      <path d="M64 12C64 14.2091 62.2091 16 60 16H54V8H60C62.2091 8 64 9.79086 64 12Z" fill="currentColor" />
-                      <path d="M78 8H70V12V16H74V12H78V8Z" fill="currentColor" />
-                      <path d="M90 12C90 14.2091 88.2091 16 86 16H80V8H86C88.2091 8 90 9.79086 90 12Z" fill="currentColor" />
-                      <path d="M92 8H100V12H97V16H95V12H92V8Z" fill="currentColor" />
-                      <path d="M112 12C112 14.2091 110.209 16 108 16C105.791 16 104 14.2091 104 12C104 9.79086 105.791 8 108 8C110.209 8 112 9.79086 112 12Z" fill="currentColor" />
-                    </svg>
+                    <div className="w-30 h-auto grayscale opacity-50 hover:grayscale-0 transition-all duration-300">
+                        <img src='/bloomberg.webp' />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -225,9 +266,8 @@ const BookBrainAwwwards = () => {
           </div>
           
           {/* App Showcase - 2 columns */}
-          <div className={`lg:col-span-2 transition-all duration-1000 delay-500 ${isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+          <div className={`lg:col-span-2 transition-all duration-1000 delay-500 ${isIntersecting.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
             <div className="relative">
-
               {/* Phone mockup with real app image */}
               <div className="relative w-full max-w-xs mx-auto">
                 <div className="rounded-[36px] overflow-hidden shadow-2xl border-8 border-slate-800">
@@ -262,8 +302,296 @@ const BookBrainAwwwards = () => {
           </div>
         </div>
       </section>
+      
+      {/* How BookBrain Works Section */}
+      <section 
+        id="features"
+        ref={sectionRefs.features}
+        className="py-24 px-6 md:px-16 bg-slate-50"
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 transition-all duration-700 ${isIntersecting.features ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              How BookBrain Works
+            </h2>
+            <p className={`text-lg text-slate-600 max-w-2xl mx-auto transition-all duration-700 delay-300 ${isIntersecting.features ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              BookBrain combines habit tracking, AI assistance, and a minimalistic design to help you read more consistently and get more from what you read.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <div 
+                key={feature.id} 
+                className={`bg-white rounded-xl p-6 shadow-sm border border-slate-100 transition-all duration-700 ${isIntersecting.features ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                style={{ transitionDelay: `${300 + index * 100}ms` }}
+              >
+                <div className="text-teal-600 mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-slate-600">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Who It's For Section */}
+      <section 
+        ref={sectionRefs.personas}
+        className="py-24 px-6 md:px-16"
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 transition-all duration-700 ${isIntersecting.personas ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              Made For?
+            </h2>
+            <p className={`text-lg text-slate-600 max-w-2xl mx-auto transition-all duration-700 delay-300 ${isIntersecting.personas ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              BookBrain is designed for readers who want to get more from their reading time.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {personas.map((persona, index) => (
+              <div 
+                key={index} 
+                className={`flex flex-col items-center text-center transition-all duration-700 ${isIntersecting.personas ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                style={{ transitionDelay: `${300 + index * 100}ms` }}
+              >
+                <div className="w-32 h-32 bg-slate-100 rounded-full mb-4 flex items-center justify-center text-4xl">
+                  {index === 0 && "🔥"}
+                  {index === 1 && "💭"}
+                  {index === 2 && "🧠"}
+                  {index === 3 && "📈"}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{persona.title}</h3>
+                <p className="text-slate-600">{persona.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Testimonials Section */}
+      <section 
+        ref={sectionRefs.testimonials}
+        className="py-24 px-6 md:px-16 bg-slate-50"
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 transition-all duration-700 ${isIntersecting.testimonials ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              What Readers Say
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div 
+                key={index} 
+                className={`bg-white rounded-xl p-6 shadow-sm border border-slate-100 transition-all duration-700 ${isIntersecting.testimonials ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                style={{ transitionDelay: `${300 + index * 100}ms` }}
+              >
+                <div className="text-2xl text-slate-300 mb-4">"</div>
+                <p className="text-slate-800 mb-4 italic">{testimonial.quote}</p>
+                <p className="text-sm text-slate-500 font-medium">{testimonial.author}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Pricing Section */}
+      <section 
+        ref={sectionRefs.pricing}
+        className="py-24 px-6 md:px-16"
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 transition-all duration-700 ${isIntersecting.pricing ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              Choose Your Plan
+            </h2>
+            <p className={`text-lg text-slate-600 max-w-2xl mx-auto transition-all duration-700 delay-300 ${isIntersecting.pricing ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              Start with our free plan or unlock all features with BookBrain Pro.
+            </p>
+          </div>
+          
+          {/* Billing toggle */}
+          <div className={`flex justify-center mb-12 transition-all duration-700 delay-500 ${isIntersecting.pricing ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            <div className="bg-slate-100 p-1 rounded-lg inline-flex">
+              <button 
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${!yearlyBilling ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500'}`}
+                onClick={() => setYearlyBilling(false)}
+              >
+                Monthly
+              </button>
+              <button 
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${yearlyBilling ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500'}`}
+                onClick={() => setYearlyBilling(true)}
+              >
+                Yearly <span className="text-green-500 text-xs">Save 33%</span>
+              </button>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Free plan */}
+            <div 
+              className={`bg-white rounded-xl p-8 shadow-sm border border-slate-200 transition-all duration-700 delay-300 ${isIntersecting.pricing ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            >
+              <h3 className="text-2xl font-bold mb-2">Free</h3>
+              <p className="text-slate-600 mb-6">Basic habit tracking and note capture</p>
+              <p className="text-4xl font-bold mb-6">$0<span className="text-base font-normal text-slate-500">/month</span></p>
+              
+              <ul className="mb-8 space-y-3">
+                <li className="flex items-center">
+                  <CheckCircle size={18} className="text-green-500 mr-2" />
+                  <span>Basic reading streak tracking</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle size={18} className="text-green-500 mr-2" />
+                  <span>Simple note taking</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle size={18} className="text-green-500 mr-2" />
+                  <span>Limited book library (up to 5 books)</span>
+                </li>
+              </ul>
+              
+              <a 
+                href="https://apps.apple.com/us/app/bookbrain/id6744559314" 
+                className="block text-center px-6 py-3 rounded-xl font-medium transition-all duration-300 border border-slate-200 text-slate-800 hover:bg-slate-50"
+              >
+                Download Free
+              </a>
+            </div>
+            
+            {/* Pro plan */}
+            <div 
+              className={`bg-teal-800 text-white rounded-xl p-8 shadow-lg relative transition-all duration-700 delay-500 ${isIntersecting.pricing ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            >
+              <div className="absolute -top-4 right-8 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                MOST POPULAR
+              </div>
+              
+              <h3 className="text-2xl font-bold mb-2">Pro</h3>
+              <p className="text-blue-200 mb-6">All features unlocked</p>
+              <p className="text-4xl font-bold mb-6">
+                {yearlyBilling ? '$29.99' : '$3.99'}
+                <span className="text-base font-normal text-blue-200">/{yearlyBilling ? 'year' : 'month'}</span>
+              </p>
+              
+              <ul className="mb-8 space-y-3">
+                <li className="flex items-center">
+                  <CheckCircle size={18} className="text-green-400 mr-2" />
+                  <span>Everything in Free</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle size={18} className="text-green-400 mr-2" />
+                  <span>AI-powered note organization</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle size={18} className="text-green-400 mr-2" />
+                  <span>Advanced reading analytics</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle size={18} className="text-green-400 mr-2" />
+                  <span>Unlimited book library</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle size={18} className="text-green-400 mr-2" />
+                  <span>Pro achievements and badges</span>
+                </li>
+              </ul>
+              
+              <a 
+                href="#" 
+                className="block text-center px-6 py-3 rounded-xl font-medium transition-all duration-300 bg-white text-teal-600 hover:bg-blue-50"
+              >
+                Get BookBrain Pro
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* FAQs Section */}
+      <section 
+        ref={sectionRefs.faq}
+        className="py-24 px-6 md:px-16 bg-slate-50"
+      >
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 transition-all duration-700 ${isIntersecting.faq ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              Frequently Asked Questions
+            </h2>
+          </div>
+          
+          <div className="space-y-4">
+            {faqs.map((faq, index) => (
+                <div 
+                key={index}
+                className={`bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 transition-all duration-700 ${isIntersecting.faq ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                style={{ transitionDelay: `${300 + index * 100}ms` }}
+              >
+                <button
+                  className="w-full text-left p-6 flex justify-between items-center focus:outline-none"
+                  onClick={() => setActiveFaq(activeFaq === index ? null : index)}
+                >
+                  <h3 className="text-lg font-medium">{faq.question}</h3>
+                  <div className={`transform transition-transform ${activeFaq === index ? 'rotate-180' : ''}`}>
+                    <ArrowRight className="rotate-90" size={16} />
+                  </div>
+                </button>
+                
+                <div className={`px-6 overflow-hidden transition-all duration-300 ${activeFaq === index ? 'max-h-40 pb-6' : 'max-h-0'}`}>
+                  <p className="text-slate-600">{faq.answer}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Download Section */}
+      <section className="py-24 px-6 relative md:px-16 bg-gradient-to-r from-teal-600 to-teal-800 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Start your reading streak today.</h2>
+          <p className="text-lg text-blue-100 mb-8 max-w-xl mx-auto">
+            Join thousands of readers who are building better reading habits with BookBrain.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a 
+              href="https://apps.apple.com/us/app/bookbrain/id6744559314" 
+              className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl font-medium transition-all duration-300 bg-white text-teal-600 hover:bg-blue-50"
+            >
+              <Download size={18} className="mr-2" />
+              Download on iOS
+            </a>
+          </div>
+        </div>
+      </section>
+      
+      {/* Footer */}
+      <footer className="py-12 px-6 md:px-16 relative bg-slate-900 text-slate-400">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+            <div className="mb-6 md:mb-0">
+              <div className="text-2xl font-bold text-white flex items-center">
+                {/* <BookOpen className="mr-2" /> BookBrain */}
+                <img src={logoImage} alt="BookBrain Logo" className="h-32 ml-2" />
+              </div>
+            </div>
+            
+            <div className="flex gap-8">
+              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+              <a href="#" className="hover:text-white transition-colors">Contact</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
 
-export default BookBrainAwwwards;
+export default BookBrainLaunch;
