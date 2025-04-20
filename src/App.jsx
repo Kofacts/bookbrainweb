@@ -18,9 +18,9 @@ const App = () => {
         
         <div className="flex items-center space-x-8">
           {/* Main navigation links */}
-          <a href="https://instagram.com/getbookbrain" className="text-sm text-slate-500 hover:text-teal-600 transition-colors hidden md:block">How it Works</a>
-          <a href="https://twitter.com/getbookbrain" className="text-sm text-slate-500 hover:text-teal-600 transition-colors hidden md:block">Testimonials</a>
-          <Link to="/privacy" className="text-sm text-slate-500 hover:text-teal-600 transition-colors">Pricing</Link>
+          <a href="#personas" className="text-sm text-slate-500 hover:text-teal-600 transition-colors hidden md:block">How it Works</a>
+          <a href="#testimonials" className="text-sm text-slate-500 hover:text-teal-600 transition-colors hidden md:block">Testimonials</a>
+          <Link to="#pricing" className="text-sm text-slate-500 hover:text-teal-600 transition-colors">Pricing</Link>
           {/* <Link to="/terms" className="text-sm text-slate-500 hover:text-teal-600 transition-colors">Terms of Use</Link> */}
         </div>
       </nav>
